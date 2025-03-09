@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HLS TV Player</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
             display: flex;
@@ -12,6 +13,8 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #111;
+            color: white;
         }
         #input-container {
             display: flex;
@@ -25,14 +28,15 @@
             border: none;
             outline: none;
         }
-        #load-button {
+        #load-button, #fullscreen-button, #save-button, #qr-button {
             padding: 8px 15px;
+            margin-left: 5px;
             background: #007bff;
             color: white;
             border: none;
             cursor: pointer;
         }
-        #load-button:hover {
+        #load-button:hover, #fullscreen-button:hover, #save-button:hover, #qr-button:hover {
             background: #0056b3;
         }
         .container {
@@ -42,7 +46,6 @@
         #channel-list {
             width: 25%;
             background: #222;
-            color: white;
             padding: 20px;
             overflow-y: auto;
         }
@@ -65,12 +68,19 @@
             width: 80%;
             max-width: 1000px;
         }
+        #qr-code {
+            display: none;
+            margin: 20px auto;
+        }
     </style>
 </head>
 <body onload="checkURLParams()">
     <div id="input-container">
         <input type="text" id="m3u8-input" placeholder="Paste your M3U8 link here...">
         <button id="load-button" onclick="loadCustomStream()">Load</button>
+        <button id="fullscreen-button" onclick="toggleFullScreen()">Fullscreen</button>
+        <button id="save-button" onclick="saveFavorite()">Save</button>
+        <button id="qr-button" onclick="generateQR()">QR Code</button>
     </div>
     <div class="container">
         <div id="channel-list">
@@ -83,7 +93,7 @@
             <video id="video" controls></video>
         </div>
     </div>
-
+    <div id="qr-code"></div>
     <script>
         function loadStream(url) {
             var video = document.getElementById('video');
@@ -123,6 +133,41 @@
                 loadStream(streamUrl);
             }
         }
+
+        function toggleFullScreen() {
+            let video = document.getElementById('video');
+            if (!document.fullscreenElement) {
+                video.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function saveFavorite() {
+            let url = document.getElementById('m3u8-input').value;
+            if (url) {
+                localStorage.setItem('favoriteStream', url);
+                alert('Stream saved!');
+            }
+        }
+
+        function generateQR() {
+            let url = document.getElementById('m3u8-input').value;
+            if (url) {
+                document.getElementById('qr-code').innerHTML = '';
+                let qr = new QRCode(document.getElementById('qr-code'), url);
+                document.getElementById('qr-code').style.display = 'block';
+            }
+        }
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "f") toggleFullScreen();
+            if (event.key === " ") {
+                event.preventDefault();
+                let video = document.getElementById("video");
+                video.paused ? video.play() : video.pause();
+            }
+        });
     </script>
 </body>
 </html>
