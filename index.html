@@ -137,9 +137,11 @@
         }
 
         function checkURLParams() {
+            const video = document.getElementById('video');
             const urlParams = new URLSearchParams(window.location.search);
             const streamUrl = urlParams.get('stream');
             if (streamUrl) {
+                video.autoplay = true;
                 document.getElementById('m3u8-input').value = streamUrl;
                 loadStream(streamUrl);
             }
