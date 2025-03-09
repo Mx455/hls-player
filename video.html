@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS TV Player</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #input-container {
+            display: flex;
+            padding: 10px;
+            background: #333;
+            color: white;
+        }
+        #m3u8-input {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            outline: none;
+        }
+        #load-button {
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #load-button:hover {
+            background: #0056b3;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        #channel-list {
+            width: 25%;
+            background: #222;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .channel {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            cursor: pointer;
+        }
+        .channel:hover {
+            background: #444;
+        }
+        #video-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: black;
+        }
+        video {
+            width: 80%;
+            max-width: 1000px;
+        }
+    </style>
+</head>
+<body onload="checkURLParams()">
+    <div id="input-container">
+        <input type="text" id="m3u8-input" placeholder="Incolla qui il link M3U8...">
+        <button id="load-button" onclick="loadCustomStream()">Carica</button>
+    </div>
+    <div class="container">
+        <div id="channel-list">
+            <h2>Canali</h2>
+            <div class="channel" onclick="loadStream('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">Canale 1</div>
+            <div class="channel" onclick="loadStream('https://test-streams.mux.dev/test_001/stream.m3u8')">Canale 2</div>
+            <div class="channel" onclick="loadStream('https://test-streams.mux.dev/pts_shift/master.m3u8')">Canale 3</div>
+        </div>
+        <div id="video-container">
+            <video id="video" controls></video>
+        </div>
+    </div>
+
+    <script>
+        function loadStream(url) {
+            var video = document.getElementById('video');
+            var inputField = document.getElementById('m3u8-input');
+            inputField.value = url;
+            
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+            }
+            video.play();
+            updateURL(url);
+        }
+
+        function loadCustomStream() {
+            var inputUrl = document.getElementById('m3u8-input').value;
+            if (inputUrl) {
+                loadStream(inputUrl);
+            } else {
+                alert('Inserisci un URL valido!');
+            }
+        }
+
+        function updateURL(streamUrl) {
+            const newUrl = window.location.origin + window.location.pathname + "?stream=" + encodeURIComponent(streamUrl);
+            history.pushState(null, "", newUrl);
+        }
+
+        function checkURLParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const streamUrl = urlParams.get('stream');
+            if (streamUrl) {
+                document.getElementById('m3u8-input').value = streamUrl;
+                loadStream(streamUrl);
+            }
+        }
+    </script>
+</body>
+</html>
