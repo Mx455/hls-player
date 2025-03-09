@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HLS TV Player</title>
+    <title>HLS, DASH & MP4 TV Player</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
@@ -76,7 +77,7 @@
 </head>
 <body onload="checkURLParams()">
     <div id="input-container">
-        <input type="text" id="m3u8-input" placeholder="Paste your M3U8 link here...">
+        <input type="text" id="m3u8-input" placeholder="Paste your HLS (.m3u8), DASH (.mpd) or MP4 (.mp4) link here...">
         <button id="load-button" onclick="loadCustomStream()">Load</button>
         <button id="fullscreen-button" onclick="toggleFullScreen()">Fullscreen</button>
         <button id="save-button" onclick="saveFavorite()">Save</button>
@@ -85,9 +86,10 @@
     <div class="container">
         <div id="channel-list">
             <h2>Channels</h2>
-            <div class="channel" onclick="loadStream('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">Channel 1</div>
-            <div class="channel" onclick="loadStream('https://test-streams.mux.dev/test_001/stream.m3u8')">Channel 2</div>
-            <div class="channel" onclick="loadStream('https://test-streams.mux.dev/pts_shift/master.m3u8')">Channel 3</div>
+            <div class="channel" onclick="loadStream('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">HLS Channel 1</div>
+            <div class="channel" onclick="loadStream('https://test-streams.mux.dev/test_001/stream.m3u8')">HLS Channel 2</div>
+            <div class="channel" onclick="loadStream('https://dash.akamaized.net/envivio/EnvivioDash3/manifest.mpd')">DASH Channel 1</div>
+            <div class="channel" onclick="loadStream('https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4')">MP4 Sample</div>
         </div>
         <div id="video-container">
             <video id="video" controls></video>
@@ -100,12 +102,21 @@
             var inputField = document.getElementById('m3u8-input');
             inputField.value = url;
             
-            if (Hls.isSupported()) {
-                var hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(video);
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            if (url.endsWith(".m3u8")) {
+                if (Hls.isSupported()) {
+                    var hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(video);
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = url;
+                }
+            } else if (url.endsWith(".mpd")) {
+                var player = dashjs.MediaPlayer().create();
+                player.initialize(video, url, true);
+            } else if (url.endsWith(".mp4")) {
                 video.src = url;
+            } else {
+                alert("Unsupported format. Please use .m3u8, .mpd, or .mp4");
             }
             video.play();
             updateURL(url);
@@ -159,15 +170,6 @@
                 document.getElementById('qr-code').style.display = 'block';
             }
         }
-
-        document.addEventListener("keydown", function(event) {
-            if (event.key === "f") toggleFullScreen();
-            if (event.key === " ") {
-                event.preventDefault();
-                let video = document.getElementById("video");
-                video.paused ? video.play() : video.pause();
-            }
-        });
     </script>
 </body>
 </html>
