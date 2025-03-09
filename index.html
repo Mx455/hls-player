@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,8 +69,8 @@
 </head>
 <body onload="checkURLParams()">
     <div id="input-container">
-        <input type="text" id="m3u8-input" placeholder="Paste the M3U8 link here...">
-        <button id="load-button" onclick="loadCustomStream()">Carica</button>
+        <input type="text" id="m3u8-input" placeholder="Paste your M3U8 link here...">
+        <button id="load-button" onclick="loadCustomStream()">Load</button>
     </div>
     <div class="container">
         <div id="channel-list">
@@ -106,7 +106,7 @@
             if (inputUrl) {
                 loadStream(inputUrl);
             } else {
-                alert('Inserisci un URL valido!');
+                alert('Please enter a valid URL!');
             }
         }
 
