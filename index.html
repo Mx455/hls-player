@@ -85,7 +85,7 @@
 </head>
 <body onload="checkURLParams()">
     <div id="input-container">
-        <input type="text" id="m3u8-input" placeholder="Paste your HLS (.m3u8) or DASH (.mpd) link here...">
+        <input type="text" id="m3u8-input" placeholder="Paste your HLS (.m3u8), DASH (.mpd) or MP4 link here...">
         <button id="load-button" onclick="loadCustomStream()">Load</button>
         <button id="fullscreen-button" onclick="toggleFullScreen()">Fullscreen</button>
         <button id="save-button" onclick="saveFavorite()">Save</button>
@@ -126,8 +126,11 @@
             } else if (url.endsWith(".mpd")) {
                 var player = dashjs.MediaPlayer().create();
                 player.initialize(video, url, true);
+            } else if (url.endsWith(".mp4")) {
+                // Se l'URL è un file MP4, carica direttamente nel player
+                video.src = url;
             } else {
-                alert("Unsupported format. Please use .m3u8 or .mpd");
+                alert("Unsupported format. Please use .m3u8, .mpd or .mp4");
                 return;
             }
             video.play();
@@ -188,3 +191,4 @@
     </script>
 </body>
 </html>
+
